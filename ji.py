@@ -19,18 +19,18 @@ class UserData(object):
         self.userdatafile=userdatafile
         with open(self.userdatafile,'r') as f:
             for line in f:
-                lst=line.strip('\n').split(',')
+                print(line)
+                lst=line.strip().strip('\n').split(',')
                 self.userdata[lst[0]]=lst[1]
-#        print(self.userdata)
+        print("nimei%s"%self.userdata)
     @property
     def get_dict(self):
         return self.userdata
     @staticmethod
     def calculator(rate,fullsalary):
         try:
-            insurance = int(fullsalary)*float(rate)
-#            print("ok",insurance)
-            if int(fullsalary) <= 3500:
+            insurance =int(fullsalary)*float(rate)
+            if int(fullsalary) <=3500:
                 salary = 0
             else:
                 salary = int(fullsalary) - 3500 -int(insurance)
@@ -50,31 +50,34 @@ class UserData(object):
                 newsurance=format(salary*0.45 -13505, '.2f')
             realsalary = float(fullsalary) - float(insurance) - float(newsurance)
             salarylst=[]
-            salarylst.append(format(realsalary,'.2f'))
-            salarylst.append(format(insurance,'.2f'))
-            salarylst.append(format(newsurance,'.2f'))
+            salarylst.append(realsalary) 
+            salarylst.append(newsurance) 
+            salarylst.append(insurance) 
             return salarylst
         except:
             print('error')
-#    @staticmethod
-#    def dumptofile(outputfile,id_people,fullsaraly,taxes_sb,taxes_gs,getsalary):
-#       with open(outputfile,'w') as f:
+    @staticmethod
+    def dumptofile(outputfile,lst_5):
+       with open(outputfile,'w') as f:
+           for line in lst_5:
+               f.write(str(line))
 if __name__ == '__main__':
     args=sys.argv[1:]
     arg_c=args.index('-c')
     arg_d=args.index('-d')
-#    arg_o=args.index('-o')
+    arg_o=args.index('-o')
     configfile=args[arg_c+1]
     userdatafile=args[arg_d+1]
+    outputfile=args[arg_o+1]
     config=Config(configfile)
     config_dict=config.get_dict
-    print(config_dict)
+    print("wocao%s"%config_dict)
     rate = 0.00
     for value in config_dict.values():
         if float(value)< 1:
             rate += float(value)
     userdata=UserData(userdatafile)
     userdata_dict=userdata.get_dict
-    for fullsalary in userdata_dict.values():
-        print(fullsalary)
-        print(UserData.calculator(rate,fullsalary))
+    for id_people,fullsalary in userdata_dict.items():
+       lst_3=UserData.calculator(rate,fullsalary)
+       UserData.dumptofile(outputfile,lst_3) 
