@@ -21,20 +21,35 @@ class UserData(object):
             for line in f:
                 lst=line.strip().strip('\n').split(',')
                 self.userdata[lst[0]]=lst[1]
-        print("nimei%s"%self.userdata)
     @property
     def get_dict(self):
         return self.userdata
     @staticmethod
-    def calculator(rate,fullsalary):
+    def calculator(JiShuL,JiShuH,rate,fullsalary):
+        print(fullsalary)
+        print(JiShuL)
+        print(JiShuH)
         try:
+            if fullsalary < JiShuL:
+                 print("no")
+                 getsalary=fullsalary
+                 fullsalary = JiShuL
+            elif fullsalary > JiShuH:
+                 print("ok")
+                 getsalary=fullsalary
+                 fullsalary = JiShuH
+            else:
+                 #getsalary=fullsalary
+                 pass
             insurance =float(fullsalary)*float(rate)
-            #insurance=format(insurance*1.00,'.2f')
-            print("wowo:%s"%insurance)
-            if int(fullsalary) <=3500:
+            print("suiqian%s"%getsalary)
+            print("suiqian%s"%fullsalary)
+            print("she bao%s"%insurance)
+            if int(getsalary) <=3500:
                 salary = 0
             else:
-                salary = int(fullsalary) - 3500 -int(insurance)
+                salary = int(getsalary) - 3500 -int(insurance)
+                print(salary)
             if 0<= salary < 1500:
                 newsurance=format(salary*0.03,'.2f')
             elif salary < 4500:
@@ -49,7 +64,7 @@ class UserData(object):
                 newsurance=format(salary*0.35 -5505, '.2f')
             else:
                 newsurance=format(salary*0.45 -13505, '.2f')
-            realsalary = float(fullsalary) - float(insurance) - float(newsurance)
+            realsalary = float(getsalary) - float(insurance) - float(newsurance)
             salarylst=[]
             salarylst.append(insurance) 
             salarylst.append(newsurance) 
@@ -60,30 +75,40 @@ class UserData(object):
     @staticmethod
     def dumptofile(outputfile,lst_5):
        with open(outputfile,'a') as f:
+           n = 0
            for i in lst_5:
+               if n > 1:
+                   i = format(float(i),'.2f')
                f.write(str(i))
-               f.write(',')
+               if n < 4:
+                  f.write(',')
+                  n +=1
            f.write('\n')
 if __name__ == '__main__':
-    args=sys.argv[1:]
-    arg_c=args.index('-c')
-    arg_d=args.index('-d')
-    arg_o=args.index('-o')
-    configfile=args[arg_c+1]
-    userdatafile=args[arg_d+1]
-    outputfile=args[arg_o+1]
-    config=Config(configfile)
-    config_dict=config.get_dict
-    print("wocao%s"%config_dict)
-    rate = 0.00
-    for value in config_dict.values():
-        if float(value)< 1:
-            rate += float(value)
-    userdata=UserData(userdatafile)
-    userdata_dict=userdata.get_dict
-    for id_people,fullsalary in userdata_dict.items():
-       lst_3=UserData.calculator(rate,fullsalary)
-       lst_3.insert(0,fullsalary)
-       lst_3.insert(0,id_people)
-       print(lst_3)
-       UserData.dumptofile(outputfile,lst_3) 
+    try:
+        args=sys.argv[1:]
+        arg_c=args.index('-c')
+        arg_d=args.index('-d')
+        arg_o=args.index('-o')
+        configfile=args[arg_c+1]
+        userdatafile=args[arg_d+1]
+        outputfile=args[arg_o+1]
+        config=Config(configfile)
+        config_dict=config.get_dict
+        JiShuL=config_dict['JiShuL']
+        JiShuH=config_dict['JiShuH']
+        rate = 0.00
+        for value in config_dict.values():
+            if float(value)< 1:
+                rate += float(value)
+        userdata=UserData(userdatafile)
+        userdata_dict=userdata.get_dict
+        for id_people,fullsalary in userdata_dict.items():
+            lst_3=UserData.calculator(JiShuL,JiShuH,rate,fullsalary)
+            lst_3.insert(0,fullsalary)
+            lst_3.insert(0,id_people)
+            UserData.dumptofile(outputfile,lst_3) 
+    except FileNotFoundError:
+        print("no file")
+    except ValueError:
+        print("can shu bu dui")    
