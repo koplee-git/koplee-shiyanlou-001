@@ -19,7 +19,6 @@ class UserData(object):
         self.userdatafile=userdatafile
         with open(self.userdatafile,'r') as f:
             for line in f:
-                print(line)
                 lst=line.strip().strip('\n').split(',')
                 self.userdata[lst[0]]=lst[1]
         print("nimei%s"%self.userdata)
@@ -29,7 +28,9 @@ class UserData(object):
     @staticmethod
     def calculator(rate,fullsalary):
         try:
-            insurance =int(fullsalary)*float(rate)
+            insurance =float(fullsalary)*float(rate)
+            #insurance=format(insurance*1.00,'.2f')
+            print("wowo:%s"%insurance)
             if int(fullsalary) <=3500:
                 salary = 0
             else:
@@ -50,17 +51,19 @@ class UserData(object):
                 newsurance=format(salary*0.45 -13505, '.2f')
             realsalary = float(fullsalary) - float(insurance) - float(newsurance)
             salarylst=[]
-            salarylst.append(realsalary) 
-            salarylst.append(newsurance) 
             salarylst.append(insurance) 
+            salarylst.append(newsurance) 
+            salarylst.append(realsalary) 
             return salarylst
         except:
             print('error')
     @staticmethod
     def dumptofile(outputfile,lst_5):
-       with open(outputfile,'w') as f:
-           for line in lst_5:
-               f.write(str(line))
+       with open(outputfile,'a') as f:
+           for i in lst_5:
+               f.write(str(i))
+               f.write(',')
+           f.write('\n')
 if __name__ == '__main__':
     args=sys.argv[1:]
     arg_c=args.index('-c')
@@ -80,4 +83,7 @@ if __name__ == '__main__':
     userdata_dict=userdata.get_dict
     for id_people,fullsalary in userdata_dict.items():
        lst_3=UserData.calculator(rate,fullsalary)
+       lst_3.insert(0,fullsalary)
+       lst_3.insert(0,id_people)
+       print(lst_3)
        UserData.dumptofile(outputfile,lst_3) 
