@@ -7,7 +7,7 @@ queue2=Queue()
 
 class Config(object):
     def __init__(self,configfile):
-        print("chushihua")
+
         self.config={}
         self.configfile=configfile
         with open(self.configfile,'r') as f:
@@ -97,14 +97,18 @@ class UserData(object):
                     n +=1
             f.write('\n')
 
-def p1(userdata_dict):
+def p1():
+
     data=[]    
-    for id_people,fullsalary in userdata_dict.items():
-        data.append(id_people)
-        data.append(fullsalary)
-        queue1.put(data)        
+    data.append(id_people)
+    data.append(fullsalary)
+    queue1.put(data)
+    print data   
+         
 def p2():
+
     data = queue1.get()
+    print(data)
     fullsalary = data[1]
     newdata=UserData.calculator(JiShuL,JiShuH,rate,fullsalary)
             
@@ -113,7 +117,9 @@ def p2():
         
 def p3(outputfile):
     newdata=queue2.get()
+    print(newdata)
     UserData.dumptofile(outputfile,newdata)        
+
 def main():
     try:
         args=sys.argv[1:]
@@ -123,32 +129,35 @@ def main():
         configfile=args[arg_c+1]
         userdatafile=args[arg_d+1]
         outputfile=args[arg_o+1]
-        print("duwenjianwanle")      
-        config=Config(configfile)
-        config_dict=config.get_dict
-        print(config_dict)
-        JiShuL = config.get_JiShuL
-        JiShuH = config.get_JiShuH
-        rate = config.get_rate
-        print(rate)
-        userdata=UserData(userdatafile)
-        userdata_dict=userdata.get_dict
-
+    except IOError:
+        print("no file")
+    except ValueError:
+        print("can shu bu dui") 
         
-        P1=Process(target=p1,args=userdata_dict)
+    config=Config(configfile) 
+        
+
+    JiShuL = config.get_JiShuL  
+    JiShuH = config.get_JiShuH
+    rate = config.get_rate
+
+    userdata=UserData(userdatafile) 
+    userdata_dict=userdata.get_dict  
+
+    for id_people,fullsalary in userdata_dict.items():
+        print id_people,fullsalary
+        P1=Process(target=p1,args=(id_people,fullsalary))
         P1.start()
         P1.join() 
         P2=Process(target=p2)
         P2.start()
         P2.start()
-        P3=Process(target=p3,args=outputfile)
+        P3=Process(target=p3,args=(outputfile,))
         P3.start()
         P3.join()
               
     
-    except IOError:
-        print("no file")
-    except ValueError:
-        print("can shu bu dui")    
+       
 if __name__ == '__main__':
-    print("go")
+
+    main()
