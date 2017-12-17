@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 from multiprocessing import Process, Queue
-
+import multiprocessing
 queue1=Queue()
 queue2=Queue()
 
@@ -27,8 +27,9 @@ class Config(object):
     def get_rate(self):
         rate = float(self.config['YangLao']) + float(self.config['YiLiao']) +float(self.config['ShengYu']) +float(self.config['ShiYe']) +float(self.config['GongShang'])+float(self.config['GongJiJin'])
         return rate 
-class UserData(object):
+class UserData(multiprocessing.Process):
     def __init__(self,userdatafile):
+        multiprocessing.Process.__init__(self)
         self.userdata={}
         self.userdatafile=userdatafile
         with open(self.userdatafile,'r') as f:
@@ -96,16 +97,16 @@ class UserData(object):
                     f.write(',')
                     n +=1
             f.write('\n')
-
-def p1():
+        print("xie wan le")
+def p1(id_people,fullsalary):
 
     data=[]    
     data.append(id_people)
     data.append(fullsalary)
     queue1.put(data)
-    print data   
+
          
-def p2():
+def p2(JiShuL,JiShuH,rate,fullsalary):
 
     data = queue1.get()
     print(data)
@@ -113,7 +114,8 @@ def p2():
     newdata=UserData.calculator(JiShuL,JiShuH,rate,fullsalary)
             
     newdata = data + newdata
-    queue2.get(newdata)
+    print(newdata)
+    queue2.put(newdata)
         
 def p3(outputfile):
     newdata=queue2.get()
@@ -145,16 +147,14 @@ def main():
     userdata_dict=userdata.get_dict  
 
     for id_people,fullsalary in userdata_dict.items():
-        print id_people,fullsalary
+        print(id_people,fullsalary)
         P1=Process(target=p1,args=(id_people,fullsalary))
         P1.start()
-        P1.join() 
-        P2=Process(target=p2)
-        P2.start()
+        P2=Process(target=p2,args=(JiShuL,JiShuH,rate,fullsalary))
         P2.start()
         P3=Process(target=p3,args=(outputfile,))
         P3.start()
-        P3.join()
+
               
     
        
